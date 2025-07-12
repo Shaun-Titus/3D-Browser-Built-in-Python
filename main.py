@@ -1,118 +1,85 @@
-import os
 import sys
+import os
 from PyQt5.QtCore import QUrl
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QToolBar, QAction,
-    QLineEdit, QStatusBar
+    QApplication,
+    QMainWindow,
+    QLineEdit,
+    QToolBar,
+    QAction,
+    QVBoxLayout,
+    QWidget,
 )
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 
-# 1) Subclass to suppress JS console spam
-class SilentWebEnginePage(QWebEnginePage):
-    def javaScriptConsoleMessage(self, level, msg, line, src):
-        # Ignore all JavaScript console messages
-        pass
-
-# 2) Define project base directory and custom homepage path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-HOMEPAGE = QUrl.fromLocalFile(os.path.join(BASE_DIR, "assets", "home.html"))
+HOME_PAGE = os.path.join(BASE_DIR, "assets", "home.html")
 
 class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Shaun's 3D Browser")
+        self.setWindowTitle("Shaun’s 3D Browser")
         self.setGeometry(100, 100, 1200, 800)
 
-        # — Central web view with silent console
         self.browser = QWebEngineView()
-        self.browser.setPage(SilentWebEnginePage(self.browser))
-        self.browser.setUrl(HOMEPAGE)  # Load your custom homepage
-        self.setCentralWidget(self.browser)
+        self.browser.load(QUrl.fromLocalFile(HOME_PAGE))
 
-        # — Status bar for load progress and messages
-        self.status = QStatusBar()
-        self.setStatusBar(self.status)
-
-        # — Navigation toolbar
-        navtb = QToolBar("Navigation")
-        self.addToolBar(navtb)
-
-        # Back button
-        back_btn = QAction("⏪ Back", self)
-        back_btn.setStatusTip("Go back")
-        back_btn.triggered.connect(self.browser.back)
-        navtb.addAction(back_btn)
-
-        # Forward button
-        forward_btn = QAction("⏩ Forward", self)
-        forward_btn.setStatusTip("Go forward")
-        forward_btn.triggered.connect(self.browser.forward)
-        navtb.addAction(forward_btn)
-
-        # Reload button
-        reload_btn = QAction("🔄 Reload", self)
-        reload_btn.setStatusTip("Reload page")
-        reload_btn.triggered.connect(self.browser.reload)
-        navtb.addAction(reload_btn)
-
-        # Home button
-        home_btn = QAction("🏠 Home", self)
-        home_btn.setStatusTip("Go home")
-        home_btn.triggered.connect(self.navigate_home)
-        navtb.addAction(home_btn)
-
-        # — URL bar
         self.url_bar = QLineEdit()
-        self.url_bar.returnPressed.connect(self.load_url_from_bar)
-        navtb.addWidget(self.url_bar)
+        self.url_bar.returnPressed.connect(self.navigate_to_url)
 
-        # — Connect signals
         self.browser.urlChanged.connect(self.update_url_bar)
-        self.browser.loadFinished.connect(self.update_title)
-        self.browser.loadProgress.connect(self.update_progress)
+
+        # Toolbar
+        nav_bar = QToolBar()
+        self.addToolBar(nav_bar)
+
+        back_btn = QAction("⏪", self)
+        back_btn.triggered.connect(self.browser.back)
+        nav_bar.addAction(back_btn)
+
+        forward_btn = QAction("⏩", self)
+        forward_btn.triggered.connect(self.browser.forward)
+        nav_bar.addAction(forward_btn)
+
+        reload_btn = QAction("🔄", self)
+        reload_btn.triggered.connect(self.browser.reload)
+        nav_bar.addAction(reload_btn)
+
+        home_btn = QAction("🏠", self)
+        home_btn.triggered.connect(self.navigate_home)
+        nav_bar.addAction(home_btn)
+
+        nav_bar.addWidget(self.url_bar)
+
+        # Layout
+        container = QWidget()
+        layout = QVBoxLayout()
+        layout.addWidget(self.browser)
+        container.setLayout(layout)
+        self.setCentralWidget(container)
 
     def navigate_home(self):
-        """Go to the local custom homepage."""
-        self.browser.setUrl(HOMEPAGE)
+        self.browser.load(QUrl.fromLocalFile(HOME_PAGE))
 
-    def load_url_from_bar(self):
-        """Decide if input is a URL or search query and navigate."""
-        text = self.url_bar.text().strip()
-        if "." in text and not text.startswith(("http://", "https://")):
-            # Looks like a domain → load directly
-            url = QUrl("https://" + text)
-        else:
-            # Treat as search if no dot or full URL not given
-            if not text.startswith(("http://", "https://")):
-                text = "https://www.google.com/search?q=" + text
-            url = QUrl(text)
-        self.browser.setUrl(url)
+    def navigate_to_url(self):
+        url = self.url_bar.text()
+        if not url.startswith("http"):
+            url = "https://www.google.com/search?q=" + url
+        self.browser.load(QUrl(url))
 
-    def update_url_bar(self, qurl):
-        """Update the URL bar to reflect the current page."""
-        self.url_bar.setText(qurl.toString())
-        self.url_bar.setCursorPosition(0)
-
-    def update_title(self):
-        """Set window title to the current page's title."""
-        title = self.browser.page().title()
-        self.setWindowTitle(f"{title} — Shaun's 3D Browser")
-
-    def update_progress(self, pct):
-        """Show loading progress in the status bar."""
-        self.status.showMessage(f"Loading… {pct}%")
+    def update_url_bar(self, q):
+        self.url_bar.setText(q.toString())
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    # Load and apply QSS stylesheet
-    qss_path = os.path.join(BASE_DIR, "assets", "styles.qss")
-    if not os.path.isfile(qss_path):
-        raise FileNotFoundError(f"Couldn’t find stylesheet at {qss_path}")
-    with open(qss_path, "r") as f:
+    # Load and apply stylesheet
+    qss_file = os.path.join(BASE_DIR, "assets", "styles.qss")
+    if not os.path.isfile(qss_file):
+        raise FileNotFoundError(f"Couldn’t find stylesheet at {qss_file}")
+    with open(qss_file, "r", encoding="utf-8") as f:
         app.setStyleSheet(f.read())
 
-    # Create and show browser window
     window = Browser()
     window.show()
     sys.exit(app.exec_())
