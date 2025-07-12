@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shaun’s Browser Home</title>
+  <style>
+    body {
+      background: #121212;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: sans-serif;
+    }
+    h1 { font-size: 3em; margin-bottom: 0.5em; }
+    p { font-size: 1.2em; margin: 0.2em; }
+    .urls a {
+      color: #3d8cf0;
+      text-decoration: none;
+      display: block;
+      margin: 0.3em 0;
+      padding: 0.3em 0.6em;
+      border: 1px solid #3d8cf0;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    .urls a:hover { background: rgba(61,140,240,0.2); }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Shaun’s Browser</h1>
+  <p>URLs:</p>
+  <div class="urls">
+    <a href="https://openai.com" target="_blank">https://openai.com</a>
+    <a href="https://github.com" target="_blank">https://github.com</a>
+    <a href="https://youtube.com" target="_blank">https://youtube.com</a>
+  </div>
+</body>
+</html>

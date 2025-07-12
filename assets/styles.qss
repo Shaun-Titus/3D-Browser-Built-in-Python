@@ -1,21 +1,20 @@
-/* styles.qss – Dark-Neon Theme */
+/* Dark‑Neon Theme */
 
-/* Main window background */
+/* Main window */
 QMainWindow {
     background-color: #121212;
 }
 
-/* Toolbar background */
+/* Toolbar */
 QToolBar {
     background: #1f1f1f;
-    border-bottom: 1px solid #333;
+    border-bottom: 2px solid #333;
 }
 
 /* Toolbar buttons */
 QToolButton {
-    color: #eee;
     background: transparent;
-    padding: 8px;
+    padding: 6px;
     margin: 2px;
 }
 QToolButton:hover {
@@ -26,7 +25,7 @@ QToolButton:pressed {
     background-color: #555;
 }
 
-/* URL bar styling */
+/* URL bar */
 QLineEdit {
     background: #2b2b2b;
     color: #eee;
@@ -44,20 +43,15 @@ QStatusBar {
     color: #888;
 }
 
-/* Scrollbars inside web view */
+/* Scrollbars */
 QScrollBar:vertical {
     background: #1f1f1f;
     width: 12px;
-    margin: 0px;
 }
 QScrollBar::handle:vertical {
     background: #444;
-    min-height: 20px;
     border-radius: 6px;
 }
 QScrollBar::handle:vertical:hover {
     background: #555;
-}
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-    height: 0;
 }
