@@ -3,39 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <title>Shaun’s Browser Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* 1. Full‑page gradient background */
     body {
-      background: #121212;
-      color: #eee;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%);
+      color: #fff;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      font-family: sans-serif;
+      overflow: hidden;
     }
-    h1 { font-size: 3em; margin-bottom: 0.5em; }
-    p { font-size: 1.2em; margin: 0.2em; }
-    .urls a {
-      color: #3d8cf0;
+    /* 2. Container to constrain content */
+    .container {
+      text-align: center;
+      max-width: 600px;
+      padding: 2rem;
+      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+    p.subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      color: #d1cfe0;
+    }
+    /* 3. Grid of link “cards” */
+    .url-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .url-card {
+      background: linear-gradient(145deg, #2e2a40, #1c1928);
+      border-radius: 8px;
+      padding: 1rem;
       text-decoration: none;
-      display: block;
-      margin: 0.3em 0;
-      padding: 0.3em 0.6em;
-      border: 1px solid #3d8cf0;
-      border-radius: 4px;
-      transition: background 0.2s;
+      color: #fff;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .urls a:hover { background: rgba(61,140,240,0.2); }
+    .url-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+    }
+    /* 4. Small footer */
+    footer {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
-  <h1>Welcome to Shaun’s Browser</h1>
-  <p>URLs:</p>
-  <div class="urls">
-    <a href="https://openai.com" target="_blank">https://openai.com</a>
-    <a href="https://github.com" target="_blank">https://github.com</a>
-    <a href="https://youtube.com" target="_blank">https://youtube.com</a>
+  <div class="container">
+    <h1>Welcome, Shaun</h1>
+    <p class="subtitle">Quick Links to Your Favorite Destinations</p>
+    <div class="url-grid">
+      <a href="https://openai.com" class="url-card" target="_blank">openai.com</a>
+      <a href="https://github.com" class="url-card" target="_blank">github.com</a>
+      <a href="https://youtube.com" class="url-card" target="_blank">youtube.com</a>
+      <a href="https://stackoverflow.com" class="url-card" target="_blank">stackoverflow.com</a>
+    </div>
+    <footer>Shaun’s 3D Browser • Crafted with ❤️</footer>
   </div>
 </body>
 </html>
