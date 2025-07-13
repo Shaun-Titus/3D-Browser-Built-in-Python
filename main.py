@@ -1,85 +1,120 @@
-import sys
-import os
-from PyQt5.QtCore import QUrl
+import sys, os, json
+from PyQt5.QtCore import QUrl, QTimer, pyqtSlot, QObject
 from PyQt5.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QLineEdit,
-    QToolBar,
-    QAction,
-    QVBoxLayout,
-    QWidget,
+    QApplication, QMainWindow, QLineEdit, QToolBar, QAction, QLabel,
+    QVBoxLayout, QWidget
 )
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWebChannel import QWebChannel
+from weather import get_weather
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-HOME_PAGE = os.path.join(BASE_DIR, "assets", "home.html")
+BASE = os.path.dirname(os.path.abspath(__file__))
+HOME = os.path.join(BASE, "assets", "home.html")
+TABS = os.path.join(BASE, "assets", "tabs.html")
+QSS = os.path.join(BASE, "assets", "styles.qss")
+
+
+class TabHandler(QObject):  # FIXED: Inherit from QObject
+    def __init__(self, parent):
+        super().__init__()  # FIXED: Call QObject constructor
+        self.parent = parent
+
+    @pyqtSlot(int)
+    def switchToTab(self, idx):
+        self.parent.switch_to_tab(idx)
+
 
 class Browser(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Shaun’s 3D Browser")
-        self.setGeometry(100, 100, 1200, 800)
+        self.setWindowTitle("Shaun’s 3D HyperBrowser")
+        self.setGeometry(50, 50, 1280, 840)
 
-        self.browser = QWebEngineView()
-        self.browser.load(QUrl.fromLocalFile(HOME_PAGE))
+        self.tabs = []
+        self.current_tab = None
 
-        self.url_bar = QLineEdit()
-        self.url_bar.returnPressed.connect(self.navigate_to_url)
+        self.toolbar = QToolBar()
+        self.addToolBar(self.toolbar)
 
-        self.browser.urlChanged.connect(self.update_url_bar)
+        for icon, command in [("🏠", self.open_home), ("➕", self.new_tab), ("🔄", self.reload_tab)]:
+            btn = QAction(icon, self)
+            self.toolbar.addAction(btn)
+            btn.triggered.connect(command)
 
-        # Toolbar
-        nav_bar = QToolBar()
-        self.addToolBar(nav_bar)
+        self.url = QLineEdit()
+        self.url.returnPressed.connect(self.load_url)
+        self.toolbar.addWidget(self.url)
 
-        back_btn = QAction("⏪", self)
-        back_btn.triggered.connect(self.browser.back)
-        nav_bar.addAction(back_btn)
+        self.weatherLbl = QLabel("⏳", self)
+        self.toolbar.addWidget(self.weatherLbl)
 
-        forward_btn = QAction("⏩", self)
-        forward_btn.triggered.connect(self.browser.forward)
-        nav_bar.addAction(forward_btn)
+        self.weatherTimer = QTimer(self)
+        self.weatherTimer.timeout.connect(self.update_weather)
+        self.weatherTimer.start(600_000)
+        self.update_weather()
 
-        reload_btn = QAction("🔄", self)
-        reload_btn.triggered.connect(self.browser.reload)
-        nav_bar.addAction(reload_btn)
+        central = QWidget()
+        self.layout = QVBoxLayout(central)
+        self.setCentralWidget(central)
 
-        home_btn = QAction("🏠", self)
-        home_btn.triggered.connect(self.navigate_home)
-        nav_bar.addAction(home_btn)
+        self.channel = QWebChannel()
+        self.handler = TabHandler(self)
+        self.channel.registerObject("handler", self.handler)
 
-        nav_bar.addWidget(self.url_bar)
+        self.new_tab(HOME)
 
-        # Layout
-        container = QWidget()
-        layout = QVBoxLayout()
-        layout.addWidget(self.browser)
-        container.setLayout(layout)
-        self.setCentralWidget(container)
+    def new_tab(self, url=None):
+        view = QWebEngineView()
+        view.page().setWebChannel(self.channel)
+        view.setUrl(QUrl.fromLocalFile(url or HOME))
 
-    def navigate_home(self):
-        self.browser.load(QUrl.fromLocalFile(HOME_PAGE))
+        if self.current_tab:
+            self.layout.removeWidget(self.current_tab)
+            self.current_tab.hide()
 
-    def navigate_to_url(self):
-        url = self.url_bar.text()
-        if not url.startswith("http"):
-            url = "https://www.google.com/search?q=" + url
-        self.browser.load(QUrl(url))
+        self.tabs.append(view)
+        self.current_tab = view
+        self.layout.addWidget(view)
+        self.url.setText(view.url().toString())
+        self.update_tab_tray()
 
-    def update_url_bar(self, q):
-        self.url_bar.setText(q.toString())
+    def switch_to_tab(self, idx):
+        if 0 <= idx < len(self.tabs):
+            self.layout.removeWidget(self.current_tab)
+            self.current_tab.hide()
+            self.current_tab = self.tabs[idx]
+            self.layout.addWidget(self.current_tab)
+            self.current_tab.show()
+            self.url.setText(self.current_tab.url().toString())
+
+    def reload_tab(self):
+        if self.current_tab:
+            self.current_tab.reload()
+
+    def open_home(self):
+        self.load_url(HOME, load_from_home=True)
+
+    def load_url(self, url=None, load_from_home=False):
+        text = self.url.text() if not load_from_home else url
+        if not text.startswith("http"):
+            text = "https://www.google.com/search?q=" + text
+        self.current_tab.setUrl(QUrl(text))
+        self.url.setText(text)
+
+    def update_weather(self):
+        w = get_weather("Kottayam")
+        self.weatherLbl.setText(f"{w['cond']} {w['temp']}°C")
+
+    def update_tab_tray(self):
+        data = [{"url": t.url().toString(), "title": t.title() or ""} for t in self.tabs]
+        tray_js = f"window.tabs = {json.dumps(data)};"
+        self.current_tab.page().runJavaScript(tray_js)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-
-    # Load and apply stylesheet
-    qss_file = os.path.join(BASE_DIR, "assets", "styles.qss")
-    if not os.path.isfile(qss_file):
-        raise FileNotFoundError(f"Couldn’t find stylesheet at {qss_file}")
-    with open(qss_file, "r", encoding="utf-8") as f:
+    with open(QSS, "r", encoding="utf-8") as f:
         app.setStyleSheet(f.read())
-
-    window = Browser()
-    window.show()
+    win = Browser()
+    win.show()
     sys.exit(app.exec_())

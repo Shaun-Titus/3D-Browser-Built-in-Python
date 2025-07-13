@@ -1,58 +1,38 @@
-/* Dark‑Neon Theme for Shaun’s Browser */
-
-/* Main window */
 QMainWindow {
     background-color: #121212;
+    border: none;
+    border-radius: 12px;
 }
 
-/* Toolbar */
 QToolBar {
     background: #1f1f1f;
     border-bottom: 2px solid #333;
 }
 
-/* Toolbar buttons */
 QToolButton {
-    color: #fff;                      /* ← make the text white */
+    color: #fff;
     background: transparent;
     padding: 6px;
     margin: 2px;
 }
+
 QToolButton:hover {
     background-color: #333;
     border-radius: 4px;
 }
+
 QToolButton:pressed {
     background-color: #555;
 }
 
-/* URL bar */
 QLineEdit {
     background: #2b2b2b;
     color: #eee;
     padding: 6px;
     border: 1px solid #444;
-    border-radius: 4px;
-}
-QLineEdit:focus {
-    border: 1px solid #3d8cf0;
-}
-
-/* Status bar */
-QStatusBar {
-    background: #1f1f1f;
-    color: #888;
-}
-
-/* Scrollbars */
-QScrollBar:vertical {
-    background: #1f1f1f;
-    width: 12px;
-}
-QScrollBar::handle:vertical {
-    background: #444;
     border-radius: 6px;
 }
-QScrollBar::handle:vertical:hover {
-    background: #555;
+
+QLineEdit:focus {
+    border: 1px solid #3d8cf0;
 }

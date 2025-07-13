@@ -2,108 +2,131 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Shaun’s Browser Home</title>
+  <title>Shaun’s 3D HyperBrowser</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
-    @keyframes darkGradient {
-      0%   { background-position:   0% 50%; }
-      50%  { background-position 100% 50%; }
-      100% { background-position   0% 50%; }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
+
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 0 20px #3d8cf066, 0 0 40px #3d8cf033; }
+      50% { box-shadow: 0 0 40px #3d8cf0aa, 0 0 80px #3d8cf066; }
+    }
+
     body {
-      margin: 0; padding: 0;
-      width: 100vw; height: 100vh;
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(120deg, #0a0f1a, #1c2331, #0a0f1a);
+      margin: 0;
+      height: 100vh;
+      font-family: 'Orbitron', sans-serif;
+      background: linear-gradient(135deg, #0a0f1a, #101720, #0a0f1a);
       background-size: 300% 300%;
-      animation: darkGradient 20s ease infinite;
-      display: flex; align-items: center; justify-content: center;
+      animation: gradientShift 20s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #fff;
+      perspective: 1200px;
+      overflow: hidden;
     }
+
     .container {
       position: relative;
-      width: 100%; max-width: 500px;
+      width: 500px;
       padding: 3rem 2rem;
-      backdrop-filter: blur(15px);
-      background: rgba(10, 15, 26, 0.6);
-      border-radius: 16px;
-      box-shadow: 0 0 40px rgba(28, 35, 49, 0.7);
+      background: rgba(10, 15, 26, 0.5);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      border: 1px solid #3d8cf055;
+      box-shadow: 0 0 60px rgba(61,140,240,0.4);
+      transform-style: preserve-3d;
+      animation: glowPulse 3s ease-in-out infinite;
+      transition: transform 0.4s ease, box-shadow 0.3s ease;
       text-align: center;
     }
-    h1 {
-      margin: 0 0 0.5rem;
-      font-size: 2.5rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+
+    .container:hover {
+      transform: rotateY(10deg) rotateX(5deg) scale(1.03);
+      box-shadow: 0 0 90px rgba(61,140,240,0.7);
     }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 10px #3d8cf0aa;
+    }
+
     p.subtitle {
-      margin: 0 0 2rem;
-      font-size: 1rem;
+      margin-bottom: 2rem;
       color: #c0c5cf;
     }
+
     .search-form {
-      position: relative;
-      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
+
     .search-form input[type="text"] {
       width: 100%;
       padding: 0.8rem 1rem;
       font-size: 1rem;
       border: none;
-      border-radius: 8px 0 0 8px;
+      border-radius: 10px 0 0 10px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      box-shadow: inset 0 0 10px #000;
       outline: none;
-      background: rgba(255,255,255,0.06);
-      color: #e1e3e8;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
     }
+
     .search-form button {
-      position: absolute;
-      top: 0; right: 0; bottom: 0;
-      width: 3.2rem;
+      padding: 0.8rem 1rem;
+      font-size: 1.1rem;
       border: none;
       background: #3d8cf0;
-      color: #fff;
-      font-size: 1.2rem;
-      border-radius: 0 8px 8px 0;
+      color: white;
+      border-radius: 0 10px 10px 0;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: background 0.3s ease;
     }
+
     .search-form button:hover {
-      background: #327ac0;
+      background: #2a6fc9;
     }
-    .search-form button:active {
-      transform: translateY(1px);
-    }
-    .search-form input[type="text"]:focus {
-      box-shadow: 0 0 8px rgba(61,140,240,0.7), inset 0 2px 4px rgba(0,0,0,0.6);
-    }
+
     footer {
       margin-top: 2rem;
       font-size: 0.75rem;
-      color: #6b6f7a;
+      color: #777;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Welcome, Shaun</h1>
-    <p class="subtitle">Search the web with style</p>
-    <form class="search-form"
-          action="https://www.google.com/search"
-          method="get">
-      <input
-        type="text"
-        name="q"
-        placeholder="Type and hit Enter…"
-        autofocus
-        autocomplete="off"
-      />
+  <div class="container" id="box">
+    <h1>Shaun’s HyperBrowser</h1>
+    <p class="subtitle">Enter the neon web</p>
+    <form class="search-form" action="https://www.google.com/search" method="get">
+      <input type="text" name="q" placeholder="Search anything..." autofocus />
       <button type="submit">🔍</button>
     </form>
-    <footer>Shaun’s 3D Browser •</footer>
+    <footer>Built with Python</footer>
   </div>
-</body>
 
+  <script>
+    const box = document.getElementById("box");
+
+    document.addEventListener("mousemove", e => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 40;
+      const y = (e.clientY / window.innerHeight - 0.5) * -40;
+      box.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+    });
+
+    window.onload = () => {
+      box.style.animation = "glowPulse 3s ease-in-out infinite";
+    };
+  </script>
+</body>
 </html>

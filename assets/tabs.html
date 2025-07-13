@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Tabs</title>
+  <style>
+    body { margin: 0; background: transparent; }
+    .tray {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      perspective: 1000px;
+    }
+    .tab-card {
+      width: 120px;
+      height: 80px;
+      background: #222;
+      border-radius: 10px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      transform-style: preserve-3d;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .tab-card:hover {
+      transform: rotateY(10deg) scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="tray" id="tray"></div>
+
+  <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+  <script>
+    new QWebChannel(qt.webChannelTransport, function(channel) {
+      const handler = channel.objects.handler;
+      const tray = document.getElementById("tray");
+      if (!window.tabs) return;
+      window.tabs.forEach((tab, i) => {
+        const card = document.createElement("div");
+        card.className = "tab-card";
+        card.textContent = tab.title || tab.url;
+        card.onclick = () => handler.switchToTab(i);
+        tray.appendChild(card);
+      });
+    });
+  </script>
+</body>
+</html>
